@@ -17,7 +17,7 @@ function DashboardProvider({
       <AppSidebar />
       <SidebarInset>
         <AppHeader />
-        <div className="flex-1 px-1 py-3">
+        <div className="flex-1 pl-0 pr-4 py-3">
           {children}
         </div>
       </SidebarInset>
