@@ -1,8 +1,9 @@
 "use client"
-import React, { useEffect } from 'react'
-import { useRouter } from 'next/navigation';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import axios from "axios";
+import React from 'react'
+import {
+  SidebarProvider,
+  SidebarInset,
+} from '@/components/ui/sidebar';
 import AppHeader from '../_components/AppHeader';
 import AppSidebar from '../_components/AppSidebar';
 
@@ -11,11 +12,15 @@ function DashboardProvider({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
   return (
     <SidebarProvider>
       <AppSidebar />
-      {children}
+      <SidebarInset>
+        <AppHeader />
+        <div className="flex-1 px-1 py-3">
+          {children}
+        </div>
+      </SidebarInset>
     </SidebarProvider>
   )
 }
