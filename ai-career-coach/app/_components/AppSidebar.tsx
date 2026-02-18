@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 import {
   Sidebar,
   SidebarContent,
@@ -15,10 +16,10 @@ import { Layers, Inbox, Calendar, UserCircle } from 'lucide-react'
 import Image from 'next/image'
 
 const sidebarItems = [
-  { label: 'Workspace', icon: Layers, url: '#' },
-  { label: 'AI Tools', icon: Inbox, url: '#' },
-  { label: 'My History', icon: Calendar, url: '#' },
-  { label: 'Profile', icon: UserCircle, url: '#' },
+  { label: 'Workspace', icon: Layers, path: '/dashboard' },
+  { label: 'AI Tools', icon: Inbox, path: '#' },
+  { label: 'My History', icon: Calendar, path: '#' },
+  { label: 'Profile', icon: UserCircle, path: '/profile' },
 ]
 
 function AppSidebar() {
@@ -47,9 +48,11 @@ function AppSidebar() {
                 const Icon = item.icon
                 return (
                   <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton>
-                      <Icon />
-                      <span>{item.label}</span>
+                    <SidebarMenuButton asChild>
+                      <Link href={item.path}>
+                        <Icon />
+                        <span>{item.label}</span>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )
