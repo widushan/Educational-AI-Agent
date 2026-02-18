@@ -1,8 +1,16 @@
 import React from 'react'
+import WelcomeBanner from './_components/WelcomeBanner'
+import AiTools from './_components/AiTools'
+import History from './_components/history'
 
 export default function DashboardPage() {
   return (
-    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
+    
+    <div>
+      <WelcomeBanner />
+      <AiTools />
+      <History />
+    </div>
 
   )
 }

@@ -11,15 +11,14 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar'
-import { Home, Inbox, Calendar, Search, Settings } from 'lucide-react'
+import { Layers, Inbox, Calendar, UserCircle } from 'lucide-react'
 import Image from 'next/image'
 
 const sidebarItems = [
-  { label: 'Home', icon: Home },
-  { label: 'Inbox', icon: Inbox },
-  { label: 'Calendar', icon: Calendar },
-  { label: 'Search', icon: Search },
-  { label: 'Settings', icon: Settings },
+  { label: 'Workspace', icon: Layers, url: '#' },
+  { label: 'AI Tools', icon: Inbox, url: '#' },
+  { label: 'My History', icon: Calendar, url: '#' },
+  { label: 'Profile', icon: UserCircle, url: '#' },
 ]
 
 function AppSidebar() {
@@ -35,7 +34,7 @@ function AppSidebar() {
             className="h-20 w-auto object-contain"
           />
           <span className="text-[11px] text-muted-foreground">
-            Build Awesome
+            Build Awesome Skills With AI
           </span>
         </div>
       </SidebarHeader>
@@ -62,7 +61,7 @@ function AppSidebar() {
 
       <SidebarFooter>
         <p className="px-3 pb-1 text-[11px] text-muted-foreground">
-          Copyright @Tubeguruji
+          Copyright @ PASINDU K.W
         </p>
       </SidebarFooter>
 
