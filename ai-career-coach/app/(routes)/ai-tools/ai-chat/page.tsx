@@ -4,10 +4,21 @@ import { Input } from '@/components/ui/input'
 import { Send } from 'lucide-react'
 import React, { useState } from 'react'
 import EmptyState from './_components/EmptyState'
+import axios from "axios";
 
 function AiChat() {
 
     const [userInput, setUserInput] = useState<string>();
+    const [loading, setLoading] = useState(false)
+
+    const onSend = async () => {
+        setLoading(true);
+        const result = await axios.post('/api/ai-career-chat-agent', {
+          userInput: userInput
+        });
+        console.log(result.data);
+        setLoading(false);
+      }
 
   return (
 
@@ -32,7 +43,7 @@ function AiChat() {
                 {/*Input Field*/}
                 <Input placeholder='Type here . . .' value={userInput}
                 onChange={(event)=>setUserInput(event.target.value)} />
-                <Button><Send /></Button>
+                <Button onClick={onSend} disabled={loading}><Send /></Button>
             </div>
         </div>
 
