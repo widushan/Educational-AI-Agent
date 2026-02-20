@@ -22,7 +22,7 @@ type AIToolProps = {
         <h2 className='font-bold mt-2'>{tool.name}</h2>
         <p className='text-gray-400'>{tool.desc}</p>
         <Link href={tool.path}>
-          <Button className='w-full mt-3'>{tool.button}</Button>
+          <Button className='w-full mt-3 cursor-pointer'>{tool.button}</Button>
         </Link>
       </div>
     )
