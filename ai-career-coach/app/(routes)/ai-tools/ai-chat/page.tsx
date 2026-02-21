@@ -2,23 +2,54 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Send } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import EmptyState from './_components/EmptyState'
 import axios from "axios";
 
+
+type messages={
+    content:string,
+    role:string,
+    type:string,
+}
+
 function AiChat() {
 
-    const [userInput, setUserInput] = useState<string>();
-    const [loading, setLoading] = useState(false)
+    const [userInput, setUserInput] = useState<string>('');
+    const [loading, setLoading] = useState(false);
+    const [messageList, setMessageList] = useState<messages[]>([{
+        content: 'User Msg',
+        role: 'user',
+        type: 'text'
+      },
+      {
+        content: 'Assistant Msg',
+        role: 'assistant',
+        type: 'text'
+    }]);
 
     const onSend = async () => {
         setLoading(true);
+        setMessageList(prev => [...prev, {
+            content: userInput,
+            role: 'user',
+            type: 'text'
+          }])
         const result = await axios.post('/api/ai-career-chat-agent', {
           userInput: userInput
         });
         console.log(result.data);
+        setMessageList(prev => [...prev,result.data])
         setLoading(false);
-      }
+    }
+
+    console.log(messageList);
+
+    useEffect(()=>{
+        //Save message into Database
+    }, [messageList])
+
+    
 
   return (
 
@@ -32,12 +63,19 @@ function AiChat() {
         </div>
 
         <div className='flex flex-col h-[75vh]'>
-            <div className='mt-5'>
+            {messageList?.length <= 0 && <div className='mt-5'>
                 {/*Empty State Options*/}
                 <EmptyState selectedQuestion={(question:string)=>setUserInput(question)} />
-            </div>
+            </div>}
             <div className='flex-1'>
                 {/*Message List*/}
+                {messageList?.map((message, index) => (
+                    <div key={index} className={`flex mb-2 ${message.role == 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`p-3 rounded-lg gap-2 ${message.role == "user" ? "bg-gray-200 text-black rounded-lg" : "bg-gray-50 text-black"}`}>
+                        {message.content}
+                        </div>
+                    </div>
+                ))}
             </div>        
             <div className='flex justify-between items-center gap-6'>
                 {/*Input Field*/}
