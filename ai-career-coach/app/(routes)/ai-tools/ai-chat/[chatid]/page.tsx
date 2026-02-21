@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { LoaderCircle, Send } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import EmptyState from './_components/EmptyState'
+import EmptyState from '../_components/EmptyState'
 import axios from "axios";
 import ReactMarkdown from 'react-markdown';
+import { useParams } from 'next/navigation'
 
 
 type messages={
@@ -19,6 +20,9 @@ function AiChat() {
     const [userInput, setUserInput] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [messageList, setMessageList] = useState<messages[]>([]);
+    const { chatid } = useParams();
+
+    console.log(chatid);
 
     const onSend = async () => {
         setLoading(true);
