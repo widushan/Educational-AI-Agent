@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -23,11 +23,15 @@ type AIToolProps = {
   
   function AiToolCard({tool}: AIToolProps) {
 
-    const id = uuidv4();
+    const [id, setId] = useState<string | null>(null);
+    useEffect(() => {
+      setId(uuidv4());
+    }, []);
     const {user} = useUser();
     const router = useRouter();
 
     const onClickButton = async () => {
+      if (!id) return;
       // Create New record to History Table
       const result = await axios.post('/api/history', {
         recordId: id,
@@ -42,8 +46,8 @@ type AIToolProps = {
         <Image src={tool.icon} width={50} height={50} alt={tool.name} />
         <h2 className='font-bold mt-2'>{tool.name}</h2>
         <p className='text-gray-400'>{tool.desc}</p>
-        <Link href={tool.path + "/" + id}>
-          <Button className='w-full mt-3 cursor-pointer' onClick={onClickButton}>{tool.button}</Button>
+        <Link href={id ? tool.path + "/" + id : tool.path}>
+          <Button className='w-full mt-3 cursor-pointer' onClick={onClickButton} disabled={!id}>{tool.button}</Button>
         </Link>
       </div>
     )

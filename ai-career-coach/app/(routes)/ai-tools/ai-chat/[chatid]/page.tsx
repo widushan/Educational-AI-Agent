@@ -6,7 +6,9 @@ import React, { useEffect, useState } from 'react'
 import EmptyState from '../_components/EmptyState'
 import axios from "axios";
 import ReactMarkdown from 'react-markdown';
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+import { v4 as uuidv4 } from 'uuid';
+
 
 
 type messages={
@@ -20,9 +22,22 @@ function AiChat() {
     const [userInput, setUserInput] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [messageList, setMessageList] = useState<messages[]>([]);
-    const { chatid } = useParams();
+    const { chatid }: any = useParams();
+    const router = useRouter();
+
 
     console.log(chatid);
+
+    useEffect(() => {
+        chatid && GetMessageList();
+    }, [chatid])
+
+    const GetMessageList = async () => {
+        const result = await axios.get('/api/history?recordId=' + chatid);
+        console.log(result.data);
+        const content = result?.data?.content;
+        setMessageList(Array.isArray(content) ? content : []);
+      }
 
     const onSend = async () => {
         setLoading(true);
@@ -50,7 +65,30 @@ function AiChat() {
 
     useEffect(()=>{
         //Save message into Database
+        if (Array.isArray(messageList) && messageList.length > 0) {
+          updateMessageList();
+        }
     }, [messageList])
+
+    const updateMessageList = async () => {
+        const result = await axios.put('/api/history', {
+          content: messageList,
+          recordId: chatid
+        });
+        console.log(result);
+    }
+
+    const onNewChat = async () => {
+        const id = uuidv4();
+        if (!id) return;
+        // Create New record to History Table
+        const result = await axios.post('/api/history', {
+          recordId: id,
+          content: []
+        });
+        console.log(result);
+        router.replace("/ai-tools/ai-chat/" + id)
+    }
 
     
 
@@ -62,7 +100,7 @@ function AiChat() {
                 <h2 className='font-bold text-lg'>AI Career Q/A Chat</h2>
                 <p>Smarter career decisions start here.</p>
             </div>
-            <Button>+ New Chat</Button>
+            <Button onClick={onNewChat}>+ New Chat</Button>
         </div>
 
         <div className='flex flex-col h-[75vh]'>
