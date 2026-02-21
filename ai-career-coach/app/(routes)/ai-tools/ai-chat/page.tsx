@@ -1,10 +1,11 @@
 "use client"
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Send } from 'lucide-react'
+import { LoaderCircle, Send } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import EmptyState from './_components/EmptyState'
 import axios from "axios";
+import ReactMarkdown from 'react-markdown';
 
 
 type messages={
@@ -17,16 +18,7 @@ function AiChat() {
 
     const [userInput, setUserInput] = useState<string>('');
     const [loading, setLoading] = useState(false);
-    const [messageList, setMessageList] = useState<messages[]>([{
-        content: 'User Msg',
-        role: 'user',
-        type: 'text'
-      },
-      {
-        content: 'Assistant Msg',
-        role: 'assistant',
-        type: 'text'
-    }]);
+    const [messageList, setMessageList] = useState<messages[]>([]);
 
     const onSend = async () => {
         setLoading(true);
@@ -34,13 +26,20 @@ function AiChat() {
             content: userInput,
             role: 'user',
             type: 'text'
-          }])
-        const result = await axios.post('/api/ai-career-chat-agent', {
-          userInput: userInput
-        });
-        console.log(result.data);
-        setMessageList(prev => [...prev,result.data])
-        setLoading(false);
+        }])
+        setUserInput('');
+        try {
+          const result = await axios.post('/api/ai-career-chat-agent', {
+            userInput: userInput
+          });
+          const content = typeof result.data === 'string' ? result.data : (result.data?.content ?? JSON.stringify(result.data));
+          setMessageList(prev => [...prev, { content, role: 'assistant', type: 'text' }])
+        } catch (err: any) {
+          const message = err?.response?.data?.error ?? err?.message ?? 'Request failed';
+          setMessageList(prev => [...prev, { content: `Error: ${message}`, role: 'assistant', type: 'text' }]);
+        } finally {
+          setLoading(false);
+        }
     }
 
     console.log(messageList);
@@ -53,7 +52,7 @@ function AiChat() {
 
   return (
 
-    <div className='px-10 md:px-24 lg:px-36 xl:px-48'>
+    <div className='px-10 md:px-24 lg:px-36 xl:px-48 h-[75vh] overflow-auto'>
         <div className='flex items-center justify-between gap-8'>
             <div>
                 <h2 className='font-bold text-lg'>AI Career Q/A Chat</h2>
@@ -70,14 +69,21 @@ function AiChat() {
             <div className='flex-1'>
                 {/*Message List*/}
                 {messageList?.map((message, index) => (
-                    <div key={index} className={`flex mb-2 ${message.role == 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`p-3 rounded-lg gap-2 ${message.role == "user" ? "bg-gray-200 text-black rounded-lg" : "bg-gray-50 text-black"}`}>
-                        {message.content}
+                    <div key={index}>
+                        <div className={`flex mb-2 ${message.role == 'user' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`p-3 rounded-lg gap-2 ${message.role == "user" ? "bg-gray-200 text-black rounded-lg" : "bg-gray-50 text-black"}`}>
+                                <ReactMarkdown>
+                                    {message.content}
+                                </ReactMarkdown>
+                            </div>
                         </div>
+                        {loading && messageList?.length-1 == index && <div className='flex justify-start p-3 rounded-lg gap-2 bg-gray-50 text-black mb-2'>
+                            <LoaderCircle className='animate-spin' />Thinking. . . .
+                        </div>}
                     </div>
                 ))}
             </div>        
-            <div className='flex justify-between items-center gap-6'>
+            <div className='flex justify-between items-center gap-6 absolute bottom-5 w-[50%]'>
                 {/*Input Field*/}
                 <Input placeholder='Type here . . .' value={userInput}
                 onChange={(event)=>setUserInput(event.target.value)} />
@@ -92,3 +98,4 @@ function AiChat() {
 }
 
 export default AiChat
+

@@ -56,11 +56,14 @@ export async function POST(req: any) {
 
     return NextResponse.json(runStatus.data?.[0].output?.output[0]);
   } catch (err: any) {
-    console.error('ai-career-chat-agent POST error:', err?.response?.data ?? err?.message ?? err);
-    return NextResponse.json(
-      { error: err?.response?.data ?? err?.message ?? 'Internal server error' },
-      { status: err?.response?.status ?? 500 }
-    );
+    const status = err?.response?.status ?? 500;
+    const data = err?.response?.data;
+    const errorMessage =
+      typeof data === 'string'
+        ? data
+        : data?.error ?? data?.message ?? (data && JSON.stringify(data)) ?? err?.message ?? 'Internal server error';
+    console.error('ai-career-chat-agent POST error:', errorMessage, err?.response?.data ?? err?.message ?? err);
+    return NextResponse.json({ error: errorMessage }, { status });
   }
 }
 
@@ -70,10 +73,16 @@ async function getRuns(
   eventId: string
 ) {
   const url = `${host}/v1/events/${eventId}/runs`;
-  const result = await axios.get(url, {
-    headers: {
-      Authorization: `Bearer ${signingKey}`,
-    },
-  });
-  return result.data;
+  try {
+    const result = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${signingKey}`,
+      },
+    });
+    return result.data;
+  } catch (err: any) {
+    const data = err?.response?.data;
+    const msg = typeof data === 'string' ? data : data?.error ?? data?.message ?? err?.message ?? 'Failed to fetch run status';
+    throw new Error(msg);
+  }
 }
