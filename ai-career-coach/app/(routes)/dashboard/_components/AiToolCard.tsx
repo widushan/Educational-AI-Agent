@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-
+import ResumeUploadDialog from './ResumeUploadDialog';
 
 interface TOOL {
     name: string,
@@ -29,8 +29,16 @@ type AIToolProps = {
     }, []);
     const {user} = useUser();
     const router = useRouter();
+    const [openResumeUpload, setOpenResumeUpload] = useState(false);
 
-    const onClickButton = async () => {
+    const onClickButton = async (e?: React.MouseEvent) => {
+
+      if (tool.name === 'AI Resume Analyzer') {
+        e?.preventDefault();
+        setOpenResumeUpload(true);
+        return;
+      }
+
       if (!id) return;
       // Create New record to History Table
       const result = await axios.post('/api/history', {
@@ -49,6 +57,8 @@ type AIToolProps = {
         <Link href={id ? tool.path + "/" + id : tool.path}>
           <Button className='w-full mt-3 cursor-pointer' onClick={onClickButton} disabled={!id}>{tool.button}</Button>
         </Link>
+        <ResumeUploadDialog openResumeUpload={openResumeUpload} setOpenResumeUpload={setOpenResumeUpload} />
+
       </div>
     )
   }
