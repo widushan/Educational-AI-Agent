@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { inngest } from "@/inngest/client";
 import axios from "axios";
-import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
+// @ts-ignore
+import pdf from "pdf-parse/lib/pdf-parse.js";
+
+export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,13 +19,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ✅ Load PDF text
-    const loader = new WebPDFLoader(resumeFile);
-    const docs = await loader.load();
-
-    // ✅ Convert to base64
+    // ✅ Convert file to ArrayBuffer
     const arrayBuffer = await resumeFile.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString("base64");
+    const buffer = Buffer.from(arrayBuffer);   
+
+    // ✅ Extract text from PDF
+    const pdfData = await pdf(buffer);
+    const pdfText = pdfData.text;
+
+    // ✅ Convert to base64 (optional, if needed)
+    const base64 = buffer.toString("base64");
 
     // ✅ Send event to Inngest
     const resultIds = await inngest.send({
@@ -30,7 +36,7 @@ export async function POST(req: NextRequest) {
       data: {
         recordId,
         base64ResumeFile: base64,
-        pdfText: docs?.[0]?.pageContent ?? "",
+        pdfText: pdfText,   // 🔥 FIXED
       },
     });
 
@@ -54,18 +60,16 @@ export async function POST(req: NextRequest) {
     }
 
     let runStatus: any = null;
-    const maxAttempts = 120;
 
-    for (let i = 0; i < maxAttempts; i++) {
+    for (let i = 0; i < 120; i++) {
       runStatus = await getRuns(host, signingKey, eventId);
-
       const status = runStatus?.data?.[0]?.status;
 
       if (status === "Completed") break;
 
       if (status === "Failed") {
         return NextResponse.json(
-          { error: "AI career agent run failed" },
+          { error: "AI resume agent run failed" },
           { status: 502 }
         );
       }
@@ -75,14 +79,17 @@ export async function POST(req: NextRequest) {
 
     if (!runStatus?.data?.[0]) {
       return NextResponse.json(
-        { error: "Timeout waiting for AI career agent result" },
+        { error: "Timeout waiting for AI resume agent result" },
         { status: 504 }
       );
     }
 
-    return NextResponse.json(runStatus.data[0]?.output?.output?.[0] ?? {});
+    return NextResponse.json(
+      runStatus.data[0]?.output?.output?.[0] ?? {}
+    );
+
   } catch (err: any) {
-    console.error("ai-career-chat-agent POST error:", err);
+    console.error("ai-resume-agent POST error:", err);
 
     return NextResponse.json(
       { error: err?.message ?? "Internal server error" },
