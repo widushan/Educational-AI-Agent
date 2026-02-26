@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       data: {
         recordId,
         base64ResumeFile: base64,
-        pdfText: pdfText,   // 🔥 FIXED
+        pdfText: pdfText,
       },
     });
 

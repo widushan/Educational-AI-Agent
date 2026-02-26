@@ -8,7 +8,7 @@ import {
     DialogTitle,
     DialogTrigger,
   } from "@/components/ui/dialog"
-import { File, Sparkles } from 'lucide-react'
+import { File, Loader2Icon, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
@@ -74,7 +74,7 @@ function ResumeUploadDialog({openResumeUpload, setOpenResumeUpload}:any) {
 
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpenResumeUpload(false)} disabled={loading}>Cancel</Button>
-              <Button disabled={!file} onClick={onUploadAndAnalyze}> <Sparkles /> Upload & Analyze</Button>
+              <Button disabled={!file || loading} onClick={onUploadAndAnalyze}> {loading? <Loader2Icon className='animate-spin' />: <Sparkles />} Upload & Analyze</Button>
             </DialogFooter>
         </DialogContent>
     </Dialog>
