@@ -1,8 +1,11 @@
+import ResumeUploadDialog from '@/app/(routes)/dashboard/_components/ResumeUploadDialog';
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Sparkle } from 'lucide-react'
-import React from 'react'
+import React, { useState } from 'react'
 
 function Report({aiReport}:any) {
+
+    const [openResumeUpload, setOpenResumeUpload] = useState(false);
 
     const getStatusColor = (per: number) => {
         if (per < 60) return 'red';
@@ -30,7 +33,7 @@ function Report({aiReport}:any) {
     <div className='p-5'>
         <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-extrabold text-gray-800 gradient-component-text">AI Analysis Results</h2>
-        <Button type='button' className='text-gray-500 hover:bg-gray-200 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 gradient-button-bg text-white'>
+        <Button type='button' onClick={()=>setOpenResumeUpload(true)}>
             Re-analyze <Sparkle />
         </Button>
         </div>
@@ -147,6 +150,8 @@ function Report({aiReport}:any) {
             Upgrade to Premium <ArrowRight />
         </Button>
         </div>
+
+        <ResumeUploadDialog openResumeUpload={openResumeUpload} setOpenResumeUpload={()=>setOpenResumeUpload(false)} />
 
     </div>
 
