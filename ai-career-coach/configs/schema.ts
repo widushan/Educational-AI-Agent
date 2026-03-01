@@ -6,11 +6,12 @@ export const usersTable = pgTable("users", {
 });
 
 
-export const HistoryTable = pgTable('historyTable', {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    recordId: varchar().notNull(),
-    content: json(),
-    userEmail: varchar('userEmail'),
-    createdAt: varchar(),
-    aiAgentType: varchar()
-  })
+export const HistoryTable = pgTable("historyTable", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  recordId: varchar({ length: 255 }).notNull(),
+  content: json(),
+  userEmail: varchar({ length: 255 }),
+  createdAt: varchar({ length: 255 }),
+  aiAgentType: varchar({ length: 255 }),
+  metaData: varchar({ length: 1024 }),
+});

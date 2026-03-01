@@ -130,7 +130,7 @@ export const AiResumeAgent = inngest.createFunction(
 { event: "AiResumeAgent" },
 async ({ event, step }) => {
   const { recordId, base64ResumeFile, pdfText, aiAgentType, userEmail } = await event.data;
-  const uploadImageUrl = await step.run("uploadImage", async () => {
+  const uploadFileUrl = await step.run("uploadImage", async () => {
     const imageKitFile = await imagekit.upload({
       file: base64ResumeFile,
       fileName: `${Date.now()}.pdf`,
@@ -152,7 +152,8 @@ async ({ event, step }) => {
       content: parseJson,
       aiAgentType: aiAgentType,
       createdAt: (new Date()).toISOString(),
-      userEmail: userEmail
+      userEmail: userEmail,
+      metaData: uploadFileUrl,
     });
     console.log(result);
     return parseJson
