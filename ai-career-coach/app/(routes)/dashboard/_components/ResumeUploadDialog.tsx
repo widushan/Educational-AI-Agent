@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     Dialog,
     DialogContent,
@@ -12,6 +12,7 @@ import { File, Loader2Icon, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 
 
@@ -20,6 +21,11 @@ function ResumeUploadDialog({openResumeUpload, setOpenResumeUpload}:any) {
   const [file, setFile] = useState<any>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    setFile([])
+  }, [openResumeUpload])
 
   const onFileChange = (event:any) => {
     const file = event.target.files?.[0];
@@ -38,10 +44,12 @@ function ResumeUploadDialog({openResumeUpload, setOpenResumeUpload}:any) {
       const formData = new FormData();
       formData.append("recordId", recordId);
       formData.append("resumeFile", file);
+      // formData.append("aiAgentType", "/ai-tools/ai-resume-analyzer");
       // Send FormData to Backend Server
       const result = await axios.post("/api/ai-resume-agent", formData);
       console.log(result.data);
       setOpenResumeUpload(false);
+      router.push("/ai-tools/ai-resume-analyzer/" + recordId);
     } catch (err: any) {
       const message =
         err?.response?.data?.error ??

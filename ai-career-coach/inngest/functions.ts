@@ -1,6 +1,8 @@
 import { inngest } from "./client";
 import { createAgent, openai } from '@inngest/agent-kit';
 import ImageKit from "imagekit";
+import { db } from "@/configs/db";
+import { HistoryTable } from "@/configs/schema";
 
 export const helloWorld = inngest.createFunction(
   { id: "hello-world" },
@@ -127,7 +129,7 @@ export const AiResumeAgent = inngest.createFunction(
 { id: "AiResumeAgent" },
 { event: "AiResumeAgent" },
 async ({ event, step }) => {
-  const { recordId, base64ResumeFile, pdfText } = await event.data;
+  const { recordId, base64ResumeFile, pdfText, aiAgentType, userEmail } = await event.data;
   const uploadImageUrl = await step.run("uploadImage", async () => {
     const imageKitFile = await imagekit.upload({
       file: base64ResumeFile,
@@ -137,7 +139,24 @@ async ({ event, step }) => {
     return imageKitFile.url;
   });
   const aiResumeReport = await AiResumeAnalyzerAgent.run(pdfText);
-  return aiResumeReport
+  //@ts-ignore
+  const rawContent = aiResumeReport.output[0].content;
+  const rawContentJson = rawContent.replace('```json', '').replace('```', '');
+  const parseJson = JSON.parse(rawContentJson);
+  // return parseJson;
+
+  //Save to DB
+  const saveToDb = await step.run("saveToDb", async () => {
+    const result = await db.insert(HistoryTable).values({
+      recordId: recordId,
+      content: parseJson,
+      aiAgentType: aiAgentType,
+      createdAt: (new Date()).toISOString(),
+      userEmail: userEmail
+    });
+    console.log(result);
+    return parseJson
+  })
   
 }
 )

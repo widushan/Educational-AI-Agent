@@ -11,5 +11,6 @@ export const HistoryTable = pgTable('historyTable', {
     recordId: varchar().notNull(),
     content: json(),
     userEmail: varchar('userEmail'),
-    createdAt: varchar()
+    createdAt: varchar(),
+    aiAgentType: varchar()
   })

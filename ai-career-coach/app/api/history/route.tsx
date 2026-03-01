@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 
 export async function POST(req: Request) {
   try {
-    const { content, recordId } = await req.json();
+    const { content, recordId, aiAgentType } = await req.json();
     const user = await currentUser();
 
     if (!recordId) {
@@ -18,6 +18,7 @@ export async function POST(req: Request) {
       content: content ?? [],
       userEmail: user?.primaryEmailAddress?.emailAddress ?? null,
       createdAt: new Date().toISOString(),
+      aiAgentType: aiAgentType
     }).returning();
 
     return NextResponse.json(result[0], { status: 201 });

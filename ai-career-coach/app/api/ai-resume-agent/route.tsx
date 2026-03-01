@@ -3,6 +3,7 @@ import { inngest } from "@/inngest/client";
 import axios from "axios";
 // @ts-ignore
 import pdf from "pdf-parse/lib/pdf-parse.js";
+import { currentUser } from "@clerk/nextjs/server";
 
 export const runtime = "nodejs";
 
@@ -11,6 +12,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const resumeFile = formData.get("resumeFile") as File | null;
     const recordId = formData.get("recordId") as string | null;
+    const user = await currentUser();
 
     if (!resumeFile || !recordId) {
       return NextResponse.json(
@@ -37,6 +39,8 @@ export async function POST(req: NextRequest) {
         recordId,
         base64ResumeFile: base64,
         pdfText: pdfText,
+        aiAgentType: "/ai-tools/ai-resume-analyzer",
+        userEmail: user?.primaryEmailAddress?.emailAddress
       },
     });
 
