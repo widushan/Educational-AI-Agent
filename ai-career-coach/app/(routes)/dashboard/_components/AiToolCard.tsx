@@ -8,6 +8,7 @@ import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import ResumeUploadDialog from './ResumeUploadDialog';
+import RoadmapGeneratorDialog from './RoadmapGeneratorDialog';
 
 interface TOOL {
     name: string,
@@ -30,12 +31,18 @@ type AIToolProps = {
     const {user} = useUser();
     const router = useRouter();
     const [openResumeUpload, setOpenResumeUpload] = useState(false);
+    const [openRoadmapDialog, setOpenRoadmapDialog] = useState(false);
 
     const onClickButton = async (e?: React.MouseEvent) => {
 
       if (tool.name === 'AI Resume Analyzer') {
         e?.preventDefault();
         setOpenResumeUpload(true);
+        return;
+      }
+
+      if (tool.path === '/ai-tools/ai-roadmap-agent') {
+        setOpenRoadmapDialog(true);
         return;
       }
 
@@ -58,7 +65,13 @@ type AIToolProps = {
         <Link href={id ? tool.path + "/" + id : tool.path}>
           <Button className='w-full mt-3 cursor-pointer' onClick={onClickButton} disabled={!id}>{tool.button}</Button>
         </Link>
+
         <ResumeUploadDialog openResumeUpload={openResumeUpload} setOpenResumeUpload={setOpenResumeUpload} />
+
+        <RoadmapGeneratorDialog 
+          openDialog={openRoadmapDialog} 
+          setOpenDialog={()=>setOpenRoadmapDialog(false)} 
+        />
 
       </div>
     )
