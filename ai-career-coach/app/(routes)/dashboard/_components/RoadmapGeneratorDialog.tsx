@@ -13,12 +13,14 @@ import { Button } from '@/components/ui/button'
 import { Loader2Icon, SparkleIcon } from 'lucide-react'
 import axios from 'axios'
 import { v4 } from 'uuid'
+import { useRouter } from 'next/navigation'
 
 
 function RoadmapGeneratorDialog({openDialog, setOpenDialog}:any) {
 
   const [userInput, setUserInput] = useState<string>();
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const GenerateRoadmap = async() =>{
     const roadmapId = v4();
@@ -29,6 +31,7 @@ function RoadmapGeneratorDialog({openDialog, setOpenDialog}:any) {
         userInput: userInput
       });
       console.log(result.data);
+      router.push('/ai-tools/ai-roadmap-agent/' + roadmapId)
       setLoading(false)
     } catch (e) {
       setLoading(false);

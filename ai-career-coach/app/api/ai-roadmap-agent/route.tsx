@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { inngest } from "@/inngest/client";
-import axios from "axios";
 import { currentUser } from "@clerk/nextjs/server";
 
 export async function POST(req: NextRequest) {
@@ -11,9 +10,9 @@ export async function POST(req: NextRequest) {
     const resultIds = await inngest.send({
       name: "AiRoadMapAgent",
       data: {
-        userInput: userInput,
-        roadmapId: roadmapId,
-        userEmail: user?.primaryEmailAddress?.emailAddress
+        userInput,
+        roadmapId,
+        userEmail: user?.primaryEmailAddress?.emailAddress,
       },
     });
 
@@ -21,102 +20,18 @@ export async function POST(req: NextRequest) {
     if (!eventId) {
       return NextResponse.json(
         { error: "Failed to send event to Inngest" },
-        { status: 502 }
+        { status: 502 },
       );
     }
 
-    const host = process.env.INNGEST_SERVER_HOST;
-    const signingKey = process.env.INNGEST_SIGNING_KEY;
-
-    if (!host || !signingKey) {
-      return NextResponse.json(
-        {
-          error:
-            "Server misconfigured: missing INNGEST_SERVER_HOST or INNGEST_SIGNING_KEY",
-        },
-        { status: 500 }
-      );
-    }
-
-    let runStatus: Awaited<ReturnType<typeof getRuns>> | null = null;
-    const maxAttempts = 120; // 60s at 500ms
-
-    for (let i = 0; i < maxAttempts; i++) {
-      runStatus = await getRuns(host, signingKey, eventId);
-
-      if (runStatus?.data?.[0]?.status === "Completed") {
-        break;
-      }
-
-      if (runStatus?.data?.[0]?.status === "Failed") {
-        return NextResponse.json(
-          {
-            error: "AI roadmap agent run failed",
-            details: runStatus.data[0],
-          },
-          { status: 502 }
-        );
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
-
-    if (!runStatus?.data?.[0]) {
-      return NextResponse.json(
-        { error: "Timeout waiting for AI roadmap agent result" },
-        { status: 504 }
-      );
-    }
-
-    return NextResponse.json(runStatus.data?.[0].output?.output[0]);
+    // Fire-and-forget: Inngest Dev Server will process the event asynchronously.
+    // Frontend can poll a separate API or DB later to fetch the generated roadmap.
+    return NextResponse.json({ ok: true, eventId });
   } catch (err: any) {
-    const status = err?.response?.status ?? 500;
-    const data = err?.response?.data;
-
-    const errorMessage =
-      typeof data === "string"
-        ? data
-        : data?.error ??
-          data?.message ??
-          (data && JSON.stringify(data)) ??
-          err?.message ??
-          "Internal server error";
-
-    console.error(
-      "ai-roadmap-agent POST error:",
-      errorMessage,
-      err?.response?.data ?? err?.message ?? err
+    console.error("ai-roadmap-agent POST error:", err);
+    return NextResponse.json(
+      { error: err?.message ?? "Internal server error" },
+      { status: 500 },
     );
-
-    return NextResponse.json({ error: errorMessage }, { status });
-  }
-}
-
-async function getRuns(
-  host: string,
-  signingKey: string,
-  eventId: string
-) {
-  const url = `${host}/v1/events/${eventId}/runs`;
-
-  try {
-    const result = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${signingKey}`,
-      },
-    });
-
-    return result.data;
-  } catch (err: any) {
-    const data = err?.response?.data;
-    const msg =
-      typeof data === "string"
-        ? data
-        : data?.error ??
-          data?.message ??
-          err?.message ??
-          "Failed to fetch run status";
-
-    throw new Error(msg);
   }
 }
