@@ -42,6 +42,7 @@ type AIToolProps = {
       }
 
       if (tool.path === '/ai-tools/ai-roadmap-agent') {
+        e?.preventDefault();
         setOpenRoadmapDialog(true);
         return;
       }
@@ -63,7 +64,13 @@ type AIToolProps = {
         <h2 className='font-bold mt-2'>{tool.name}</h2>
         <p className='text-gray-400'>{tool.desc}</p>
         <Link href={id ? tool.path + "/" + id : tool.path}>
-          <Button className='w-full mt-3 cursor-pointer' onClick={onClickButton} disabled={!id}>{tool.button}</Button>
+          <Button
+            className='w-full mt-3 cursor-pointer'
+            onClick={onClickButton}
+            disabled={!id}
+          >
+            {tool.button}
+          </Button>
         </Link>
 
         <ResumeUploadDialog openResumeUpload={openResumeUpload} setOpenResumeUpload={setOpenResumeUpload} />

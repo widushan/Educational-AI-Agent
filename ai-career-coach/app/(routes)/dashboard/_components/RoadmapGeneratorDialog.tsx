@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {
     Dialog,
     DialogContent,
@@ -10,11 +10,31 @@ import {
   } from "@/components/ui/dialog"
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { SparkleIcon } from 'lucide-react'
-
+import { Loader2Icon, SparkleIcon } from 'lucide-react'
+import axios from 'axios'
+import { v4 } from 'uuid'
 
 
 function RoadmapGeneratorDialog({openDialog, setOpenDialog}:any) {
+
+  const [userInput, setUserInput] = useState<string>();
+  const [loading, setLoading] = useState(false);
+
+  const GenerateRoadmap = async() =>{
+    const roadmapId = v4();
+    setLoading(true)
+    try {
+      const result = await axios.post('/api/ai-roadmap-agent', {
+        roadmapId: roadmapId,
+        userInput: userInput
+      });
+      console.log(result.data);
+      setLoading(false)
+    } catch (e) {
+      setLoading(false);
+      console.log(e)
+    }
+  }
 
   return (
 
@@ -28,11 +48,17 @@ function RoadmapGeneratorDialog({openDialog, setOpenDialog}:any) {
             </DialogDescription>
             </DialogHeader>
             <div className="mt-4">
-              <Input type="text" placeholder="e.g. AI/ML Engineer" />
+              <Input type="text" placeholder="e.g. AI/ML Engineer" 
+              onChange={(event)=>setUserInput(event?.target.value)}/>
             </div>
             <DialogFooter>
-              <Button variant={'outline'}>Cancel</Button>
-              <Button> <SparkleIcon /> Generate Roadmap</Button>
+              <Button variant={'outline'} onClick={() => setOpenDialog(false)}>Cancel</Button>
+              <Button
+                onClick={GenerateRoadmap}
+                disabled={loading || !userInput}
+              >
+                {loading?<Loader2Icon className='animate-spin' />:<SparkleIcon />} Generate Roadmap
+              </Button>
             </DialogFooter>
         </DialogContent>
     </Dialog>

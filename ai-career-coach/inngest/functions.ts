@@ -213,12 +213,29 @@ async ({ event, step }) => {
 
 export const AIRoadmapAgent = inngest.createFunction(
   { id: 'AiRoadMapAgent' },
-  { event: 'AIRoadmapAgent' },
+  { event: 'AiRoadMapAgent' },
   async ({event, step}) => {
     const {roadmapId, userInput, userEmail} = await event.data;
     const roadmapResult = await AIRoadmapGeneratorAgent.run("UserInput:"+userInput);
 
+    //@ts-ignore
+  const rawContent = roadmapResult.output[0].content;
+  const rawContentJson = rawContent.replace('```json', '').replace('```', '');
+  const parseJson = JSON.parse(rawContentJson);
+
     // Save to DB
+    const saveToDb = await step.run("saveToDb", async () => {
+      const result = await db.insert(HistoryTable).values({
+        recordId: roadmapId,
+        content: parseJson,
+        aiAgentType: '/ai-tools/ai-roadmap-agent',
+        createdAt: (new Date()).toISOString(),
+        userEmail: userEmail,
+        metaData: userInput,
+      });
+      console.log(result);
+      return parseJson
+    })
   }
 )
 
