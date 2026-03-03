@@ -80,10 +80,6 @@ CLERK_SECRET_KEY=
 # Neon Database
 DATABASE_URL=
 
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-
 # Inngest
 INNGEST_EVENT_KEY=
 INNGEST_SIGNING_KEY=
@@ -107,6 +103,23 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to see it in action! 🎉
+
+https://educational-ai-agent-xi.vercel.app/
+
+
+<img width="1912" height="1026" alt="Image" src="https://github.com/user-attachments/assets/66851678-2292-4739-92b2-1d5e3a9420f2" />
+
+<img width="1917" height="1027" alt="Image" src="https://github.com/user-attachments/assets/cda5e77a-fb83-4331-8f55-efae10f9078e" />
+
+<img width="1910" height="1022" alt="Image" src="https://github.com/user-attachments/assets/6a0bbbf7-9158-4bc4-aed1-eda2073fa656" />
+
+<img width="1912" height="1032" alt="Image" src="https://github.com/user-attachments/assets/035ecc32-e43a-45cb-be96-7d6d1321b03c" />
+
+<img width="1910" height="1016" alt="Image" src="https://github.com/user-attachments/assets/8b43b09a-b247-4d07-85f5-2345c6ac2286" />
+
+<img width="1903" height="1021" alt="Image" src="https://github.com/user-attachments/assets/dab24238-2515-4c5e-9c55-cbce50c0f6cc" />
+
+<img width="1907" height="1022" alt="Image" src="https://github.com/user-attachments/assets/6bc20693-b3f1-4f8a-9554-b836138f735e" />
 
 ---
 
