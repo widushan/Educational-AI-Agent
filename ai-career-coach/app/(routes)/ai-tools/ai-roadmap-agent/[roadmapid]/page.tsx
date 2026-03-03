@@ -31,8 +31,8 @@ function RoadmapGeneratorAgent() {
 
             <Button className='mt-5 w-full'>+ Create Another Roadmap</Button>
         </div>
-        <div className="md:grid-cols-2">
-          <RoadmapCanvas />
+        <div className="md:col-span-2 w-full h-[80vh]">
+          <RoadmapCanvas initialNodes={roadMapDetail?.initialNodes} initialEdges={roadMapDetail?.initialEdges} />
         </div>
       </div>
 
