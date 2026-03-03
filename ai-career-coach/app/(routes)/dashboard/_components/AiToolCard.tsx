@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import ResumeUploadDialog from './ResumeUploadDialog';
 import RoadmapGeneratorDialog from './RoadmapGeneratorDialog';
+import CoverLetterDialog from './CoverLetterDialog';
 
 interface TOOL {
     name: string,
@@ -32,6 +33,7 @@ type AIToolProps = {
     const router = useRouter();
     const [openResumeUpload, setOpenResumeUpload] = useState(false);
     const [openRoadmapDialog, setOpenRoadmapDialog] = useState(false);
+    const [openCoverDialog, setOpenCoverDialog] = useState(false);
 
     const onClickButton = async (e?: React.MouseEvent) => {
 
@@ -44,6 +46,12 @@ type AIToolProps = {
       if (tool.path === '/ai-tools/ai-roadmap-agent') {
         e?.preventDefault();
         setOpenRoadmapDialog(true);
+        return;
+      }
+
+      if (tool.path === '/ai-tools/coverletter-generator') {
+        e?.preventDefault();
+        setOpenCoverDialog(true);
         return;
       }
 
@@ -78,6 +86,11 @@ type AIToolProps = {
         <RoadmapGeneratorDialog 
           openDialog={openRoadmapDialog} 
           setOpenDialog={()=>setOpenRoadmapDialog(false)} 
+        />
+
+        <CoverLetterDialog
+          openDialog={openCoverDialog}
+          setOpenDialog={setOpenCoverDialog}
         />
 
       </div>

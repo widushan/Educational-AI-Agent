@@ -150,8 +150,6 @@ vertical tree structure with meaningful x/y positions to form a flow
   })
 })
 
-
-
 export const AiCareerAgent = inngest.createFunction(
   {id: 'AiCareerAgent'},
   {event: 'AiCareerAgent'},
@@ -171,6 +169,29 @@ var imagekit = new ImageKit({
   urlEndpoint : process.env.IMAGEKIT_ENDPOINT_URL
 });
 
+
+export const AiCoverLetterAgent = createAgent({
+  name: "AiCoverLetterAgent",
+  description: "Generate tailored cover letters from resume and job details",
+  system: `You are an expert cover letter writer for technology and professional roles.
+Given:
+- The candidate's resume text
+- The company name
+- The position title
+
+Write a concise, professional cover letter that:
+- Is 3–6 paragraphs
+- Uses a confident but friendly tone
+- Highlights the most relevant experience and skills
+- Mentions the company and position naturally
+- Ends with a clear call-to-action and sign-off
+
+Return ONLY the final cover letter text. Do NOT include markdown fences, JSON, or any extra commentary.`,
+  model: openai({
+    model: "gpt-4o-mini",
+    apiKey: process.env.GPT_API_KEY,
+  }),
+});
 
 export const AiResumeAgent = inngest.createFunction(
 { id: "AiResumeAgent" },
@@ -209,8 +230,6 @@ async ({ event, step }) => {
 }
 )
 
-
-
 export const AIRoadmapAgent = inngest.createFunction(
   { id: 'AiRoadMapAgent' },
   { event: 'AiRoadMapAgent' },
@@ -238,4 +257,46 @@ export const AIRoadmapAgent = inngest.createFunction(
     })
   }
 )
+
+
+export const CoverLetterAgent = inngest.createFunction(
+  { id: "AiCoverLetterAgent" },
+  { event: "AiCoverLetterAgent" },
+  async ({ event, step }) => {
+    const {
+      recordId,
+      resumeText,
+      companyName,
+      positionTitle,
+      userEmail,
+    } = await event.data;
+
+    const aiResult = await AiCoverLetterAgent.run(
+      `Resume:\n${resumeText}\n\nCompany: ${companyName}\nPosition: ${positionTitle}`,
+    );
+
+    // @ts-ignore
+    const letterText = aiResult.output?.[0]?.content ?? "";
+
+    const content = {
+      companyName,
+      positionTitle,
+      resumeText,
+      letterText,
+    };
+
+    await step.run("saveCoverLetterToDb", async () => {
+      await db.insert(HistoryTable).values({
+        recordId,
+        content,
+        aiAgentType: "/ai-tools/coverletter-generator",
+        createdAt: new Date().toISOString(),
+        userEmail,
+        metaData: null,
+      });
+    });
+
+    return content;
+  },
+);
 

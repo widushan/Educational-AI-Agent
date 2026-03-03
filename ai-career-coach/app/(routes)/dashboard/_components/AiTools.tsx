@@ -29,7 +29,7 @@ export const aiToolsList = [
         desc: 'Write a cover letter',
         icon: '/cover.png',
         button: 'Create Now',
-        path: '/cover-letter-generator'
+        path: '/ai-tools/coverletter-generator'
       },
   ]
 
