@@ -4,12 +4,14 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import RoadmapCanvas from '../_components/RoadmapCanvas';
+import RoadmapGeneratorDialog from '@/app/(routes)/dashboard/_components/RoadmapGeneratorDialog';
 
 
 function RoadmapGeneratorAgent() {
 
     const { roadmapid } = useParams();
     const [roadMapDetail, setRoadMapDetail] = useState<any>();
+    const [openRoadmapDialog, setOpenRoadmapDialog] = useState(false);
 
     useEffect(() => {
       roadmapid && GetRoadmapDetails();
@@ -29,11 +31,15 @@ function RoadmapGeneratorAgent() {
             <p className='mt-3 text-gray-500'> <strong>Description</strong> : <br /> {roadMapDetail?.description}</p>
             <h2 className='mt-5 font-medium text-blue-600'>Duration : {roadMapDetail?.duration}</h2>
 
-            <Button className='mt-5 w-full'>+ Create Another Roadmap</Button>
+            <Button onClick={()=>setOpenRoadmapDialog(true)} className='mt-5 w-full'>+ Create Another Roadmap</Button>
         </div>
         <div className="md:col-span-2 w-full h-[80vh]">
           <RoadmapCanvas initialNodes={roadMapDetail?.initialNodes} initialEdges={roadMapDetail?.initialEdges} />
         </div>
+        <RoadmapGeneratorDialog 
+          openDialog={openRoadmapDialog} 
+          setOpenDialog={()=>setOpenRoadmapDialog(false)} 
+        />
       </div>
 
     )

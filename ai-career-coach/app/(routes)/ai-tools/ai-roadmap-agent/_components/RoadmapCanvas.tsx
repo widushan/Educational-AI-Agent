@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { ReactFlow, Controls, MiniMap, Background } from '@xyflow/react';
+import { ReactFlow, Controls, MiniMap, Background, useNodesState } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import TurboNode from './TurboNode';
 
@@ -18,6 +18,9 @@ function RoadmapCanvas({initialNodes, initialEdges}:any) {
     { id: 'n2', position: { x: 0, y: 100 }, data: { label: 'Node 2' } },
   ];
   const initialEdges = [{ id: 'n1-n2', source: 'n1', target: 'n2' }]; */
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
+  const [edges, setedges, onEdgesChange] = useNodesState(initialEdges)
 
   const layoutedNodes = useMemo(() => {
     if (!Array.isArray(initialNodes) || !Array.isArray(initialEdges)) {
