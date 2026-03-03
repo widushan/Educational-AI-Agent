@@ -12,7 +12,7 @@
     "@clerk/nextjs": "^6.36.1",
     "@hookform/resolvers": "^5.2.2",
     "@inngest/agent-kit": "^0.13.2",
-    "@langchain/community": "^1.1.17",
+    "@langchain/community": "^0.3.45",
     "@langchain/core": "^1.1.27",
     "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-accordion": "^1.2.12",
