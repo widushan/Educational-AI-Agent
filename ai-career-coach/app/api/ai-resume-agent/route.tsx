@@ -4,8 +4,19 @@ import axios from "axios";
 // @ts-ignore
 import pdf from "pdf-parse/lib/pdf-parse.js";
 import { currentUser } from "@clerk/nextjs/server";
+import ImageKit from "imagekit";
 
 export const runtime = "nodejs";
+
+// ✅ ImageKit instance — upload happens here so base64 never reaches Inngest
+const imagekit = new ImageKit({
+  // @ts-ignore
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+  // @ts-ignore
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+  // @ts-ignore
+  urlEndpoint: process.env.IMAGEKIT_ENDPOINT_URL,
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,26 +32,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ✅ Convert file to ArrayBuffer
+    // ✅ Convert file to Buffer
     const arrayBuffer = await resumeFile.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);   
+    const buffer = Buffer.from(arrayBuffer);
 
     // ✅ Extract text from PDF
     const pdfData = await pdf(buffer);
-    const pdfText = pdfData.text;
+    const pdfText: string = pdfData.text;
 
-    // ✅ Convert to base64 (optional, if needed)
+    // ✅ Upload PDF to ImageKit HERE (keeps base64 out of the Inngest event)
     const base64 = buffer.toString("base64");
+    const imageKitFile = await imagekit.upload({
+      file: base64,
+      fileName: `${Date.now()}.pdf`,
+      isPublished: true,
+    });
+    const resumeFileUrl = imageKitFile.url;
 
-    // ✅ Send event to Inngest
+    // ✅ Send only the URL + extracted text — no binary payload
     const resultIds = await inngest.send({
       name: "AiResumeAgent",
       data: {
         recordId,
-        base64ResumeFile: base64,
-        pdfText: pdfText,
+        resumeFileUrl,   // CDN URL instead of raw base64
+        pdfText,
         aiAgentType: "/ai-tools/ai-resume-analyzer",
-        userEmail: user?.primaryEmailAddress?.emailAddress
+        userEmail: user?.primaryEmailAddress?.emailAddress,
       },
     });
 

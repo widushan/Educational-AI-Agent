@@ -13,15 +13,15 @@ export const helloWorld = inngest.createFunction(
   },
 );
 
-export const AiCareerChatAgent=createAgent({
-  name:'AiCareerChatAgent',
-  description:'An AI Agent that anwers career related questions',
-  system:`You are a helpful, professional AI Career Coach Agent. Your role is to guide users with questions related to careers, including job search advice, interview preparation, resume improvement, skill development, career transitions, and industry trends. 
+export const AiCareerChatAgent = createAgent({
+  name: 'AiCareerChatAgent',
+  description: 'An AI Agent that anwers career related questions',
+  system: `You are a helpful, professional AI Career Coach Agent. Your role is to guide users with questions related to careers, including job search advice, interview preparation, resume improvement, skill development, career transitions, and industry trends. 
   Always respond with clarity, encouragement, and actionable advice tailored to the user's needs. 
   If the user asks something unrelated to careers (e.g., topics like health, relationships, coding help, or general trivia), gently inform them that you are a career coach and suggest relevant career-focused questions instead.`,
-  model:openai({
-    model:"gpt-4o-mini",
-    apiKey:process.env.GPT_API_KEY
+  model: openai({
+    model: "gpt-4o-mini",
+    apiKey: process.env.GPT_API_KEY
   })
 })
 
@@ -151,10 +151,10 @@ vertical tree structure with meaningful x/y positions to form a flow
 })
 
 export const AiCareerAgent = inngest.createFunction(
-  {id: 'AiCareerAgent'},
-  {event: 'AiCareerAgent'},
-  async({event, step}) => {
-    const {userInput} = await event?.data;
+  { id: 'AiCareerAgent' },
+  { event: 'AiCareerAgent' },
+  async ({ event, step }) => {
+    const { userInput } = await event?.data;
     const result = await AiCareerChatAgent.run(userInput);
     return result;
   }
@@ -162,11 +162,11 @@ export const AiCareerAgent = inngest.createFunction(
 
 var imagekit = new ImageKit({
   //@ts-ignore
-  publicKey : process.env.IMAGEKIT_PUBLIC_KEY,
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
   //@ts-ignore
-  privateKey : process.env.IMAGEKIT_PRIVATE_KEY,
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
   //@ts-ignore
-  urlEndpoint : process.env.IMAGEKIT_ENDPOINT_URL
+  urlEndpoint: process.env.IMAGEKIT_ENDPOINT_URL
 });
 
 
@@ -194,53 +194,47 @@ Return ONLY the final cover letter text. Do NOT include markdown fences, JSON, o
 });
 
 export const AiResumeAgent = inngest.createFunction(
-{ id: "AiResumeAgent" },
-{ event: "AiResumeAgent" },
-async ({ event, step }) => {
-  const { recordId, base64ResumeFile, pdfText, aiAgentType, userEmail } = await event.data;
-  const uploadFileUrl = await step.run("uploadImage", async () => {
-    const imageKitFile = await imagekit.upload({
-      file: base64ResumeFile,
-      fileName: `${Date.now()}.pdf`,
-      isPublished: true,
-    });
-    return imageKitFile.url;
-  });
-  const aiResumeReport = await AiResumeAnalyzerAgent.run(pdfText);
-  //@ts-ignore
-  const rawContent = aiResumeReport.output[0].content;
-  const rawContentJson = rawContent.replace('```json', '').replace('```', '');
-  const parseJson = JSON.parse(rawContentJson);
-  // return parseJson;
+  { id: "AiResumeAgent" },
+  { event: "AiResumeAgent" },
+  async ({ event, step }) => {
+    // base64 is no longer sent — the API route uploaded to ImageKit before firing this event
+    const { recordId, resumeFileUrl, pdfText, aiAgentType, userEmail } = await event.data;
 
-  //Save to DB
-  const saveToDb = await step.run("saveToDb", async () => {
-    const result = await db.insert(HistoryTable).values({
-      recordId: recordId,
-      content: parseJson,
-      aiAgentType: aiAgentType,
-      createdAt: (new Date()).toISOString(),
-      userEmail: userEmail,
-      metaData: uploadFileUrl,
-    });
-    console.log(result);
-    return parseJson
-  })
-  
-}
+    const aiResumeReport = await AiResumeAnalyzerAgent.run(pdfText);
+    //@ts-ignore
+    const rawContent = aiResumeReport.output[0].content;
+    const rawContentJson = rawContent.replace('```json', '').replace('```', '');
+    const parseJson = JSON.parse(rawContentJson);
+
+    //Save to DB
+    const saveToDb = await step.run("saveToDb", async () => {
+      const result = await db.insert(HistoryTable).values({
+        recordId: recordId,
+        content: parseJson,
+        aiAgentType: aiAgentType,
+        createdAt: (new Date()).toISOString(),
+        userEmail: userEmail,
+        metaData: resumeFileUrl,   // URL from the API route upload
+      });
+      console.log(result);
+      return parseJson
+    })
+
+  }
 )
+
 
 export const AIRoadmapAgent = inngest.createFunction(
   { id: 'AiRoadMapAgent' },
   { event: 'AiRoadMapAgent' },
-  async ({event, step}) => {
-    const {roadmapId, userInput, userEmail} = await event.data;
-    const roadmapResult = await AIRoadmapGeneratorAgent.run("UserInput:"+userInput);
+  async ({ event, step }) => {
+    const { roadmapId, userInput, userEmail } = await event.data;
+    const roadmapResult = await AIRoadmapGeneratorAgent.run("UserInput:" + userInput);
 
     //@ts-ignore
-  const rawContent = roadmapResult.output[0].content;
-  const rawContentJson = rawContent.replace('```json', '').replace('```', '');
-  const parseJson = JSON.parse(rawContentJson);
+    const rawContent = roadmapResult.output[0].content;
+    const rawContentJson = rawContent.replace('```json', '').replace('```', '');
+    const parseJson = JSON.parse(rawContentJson);
 
     // Save to DB
     const saveToDb = await step.run("saveToDb", async () => {
