@@ -17,8 +17,8 @@ import Image from 'next/image'
 
 const sidebarItems = [
   { label: 'Workspace', icon: Layers, path: '/dashboard' },
-  { label: 'AI Tools', icon: Inbox, path: '#' },
-  { label: 'My History', icon: Calendar, path: '#' },
+  { label: 'AI Tools', icon: Inbox, path: '/ai-tools' },
+  { label: 'My History', icon: Calendar, path: '/my-history' },
   { label: 'Profile', icon: UserCircle, path: '/profile' },
 ]
 
